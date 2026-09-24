@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: scrapchain
+      POSTGRES_USER: scrapchain_user
+      POSTGRES_PASSWORD: scrapchain_pass
+    ports: ["5432:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scrapchain_user"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  backend:
+    build: ../backend
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql://scrapchain_user:scrapchain_pass@postgres:5432/scrapchain
+      REDIS_URL: redis://redis:6379
+      FABRIC_MODE: simulated   # flip to "live" after blockchain/scripts/network_up.sh
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  orderer:
+    image: hyperledger/fabric-orderer:2.5
+    environment:
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=ScrapChainMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+    ports: ["7050:7050"]
+    volumes:
+      - ../blockchain/network/orderer.genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ../blockchain/network/crypto-config/ordererOrganizations/scrapchain.org/orderers/orderer.scrapchain.org/msp:/var/hyperledger/orderer/msp
+    profiles: ["fabric"]
+
+  peer0:
+    image: hyperledger/fabric-peer:2.5
+    environment:
+      - CORE_PEER_ID=peer0.scrapchain.org
+      - CORE_PEER_ADDRESS=peer0.scrapchain.org:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.scrapchain.org:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.scrapchain.org:7051
+      - CORE_PEER_LOCALMSPID=ScrapChainMSP
+      - CORE_PEER_LOCALMSPDIR=/var/hyperledger/peer/msp
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    ports: ["7051:7051", "7052:7052"]
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../blockchain/network/crypto-config/peerOrganizations/scrapchain.org/peers/peer0.scrapchain.org/msp:/var/hyperledger/peer/msp
+    profiles: ["fabric"]
+
+  explorer:
+    image: ghcr.io/hyperledger-labs/explorer:latest
+    ports: ["8080:8080"]
+    depends_on: [postgres, peer0]
+    profiles: ["fabric"]
+
+volumes:
+  postgres_data:

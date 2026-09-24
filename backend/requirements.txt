@@ -1,0 +1,13 @@
+# Core
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+python-dotenv>=1.0
+httpx>=0.27
+qrcode[pil]>=7.4
+
+# Production add-ons (not needed for demo mode)
+# psycopg2-binary>=2.9        # PostgreSQL 16 + TimescaleDB
+# redis>=5.0                  # price cache
+# torch>=2.4                  # GNN recycler matcher
+# fabric-gateway (gRPC)       # Hyperledger Fabric 2.5 live mode

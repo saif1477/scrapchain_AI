@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScrapChain AI — 90-Second Demo</title>
+<style>
+  :root { --green:#16a34a; --dark:#052e16; --amber:#f59e0b; --red:#dc2626; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background:#0a0f0a; color:#e7f5e7; min-height:100vh; }
+  header { padding:18px 24px; background:linear-gradient(90deg,var(--dark),#14532d); display:flex; align-items:center; gap:14px; border-bottom:2px solid var(--green); }
+  header .logo { font-size:30px; }
+  header h1 { font-size:20px; } header p { font-size:12px; color:#86efac; }
+  .timer { margin-left:auto; font-variant-numeric:tabular-nums; background:#052e16; border:1px solid var(--green); border-radius:999px; padding:6px 16px; font-size:14px; color:#86efac; }
+  main { max-width:1080px; margin:0 auto; padding:22px; }
+  .steps { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+  .step { flex:1; min-width:110px; text-align:center; font-size:11px; padding:8px 4px; border-radius:8px; background:#111a11; border:1px solid #1f2f1f; color:#6b8f6b; }
+  .step.active { background:#14532d; border-color:var(--green); color:#fff; font-weight:600; }
+  .step.done { border-color:var(--green); color:#86efac; }
+  .card { background:#0f1a0f; border:1px solid #1f3d1f; border-radius:14px; padding:22px; margin-bottom:18px; }
+  h2 { font-size:17px; margin-bottom:12px; color:#86efac; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+  .item-btn { background:#122412; border:1px solid #234a23; color:#e7f5e7; border-radius:10px; padding:14px 8px; cursor:pointer; text-align:center; transition:.15s; }
+  .item-btn:hover { border-color:var(--green); transform:translateY(-2px); }
+  .item-btn .emoji { font-size:26px; display:block; margin-bottom:6px; }
+  .item-btn .sub { font-size:10px; color:#6b8f6b; }
+  .camera { position:relative; background:repeating-linear-gradient(45deg,#0c130c,#0c130c 12px,#0e170e 12px,#0e170e 24px); border-radius:10px; height:230px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:14px; }
+  .bbox { position:absolute; border:3px solid var(--green); border-radius:6px; width:52%; height:62%; box-shadow:0 0 20px rgba(22,163,74,.5); animation:pulse 1.2s infinite; }
+  .bbox.hazard { border-color:var(--red); box-shadow:0 0 24px rgba(220,38,38,.6); }
+  .bbox-label { position:absolute; top:-26px; left:-3px; background:var(--green); color:#fff; font-size:12px; font-weight:700; padding:3px 10px; border-radius:5px 5px 0 0; white-space:nowrap; }
+  .bbox.hazard .bbox-label { background:var(--red); }
+  @keyframes pulse { 50% { opacity:.65; } }
+  .big-emoji { font-size:84px; filter:drop-shadow(0 0 18px rgba(22,163,74,.35)); }
+  .price-tag { font-size:42px; font-weight:800; color:#4ade80; }
+  .voice-line { background:#122412; border-left:4px solid var(--amber); padding:10px 14px; border-radius:0 8px 8px 0; margin:12px 0; font-size:15px; }
+  .btn { background:var(--green); color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:15px; font-weight:600; cursor:pointer; transition:.15s; }
+  .btn:hover { background:#15803d; } .btn.secondary { background:#1f3d1f; }
+  .btn.danger { background:var(--red); }
+  .rec { display:flex; align-items:center; gap:12px; background:#122412; border:1px solid #234a23; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .rec:hover { border-color:var(--green); }
+  .rec .rank { font-size:22px; } .rec .meta { font-size:12px; color:#8fbf8f; }
+  .rec .score { margin-left:auto; text-align:right; font-size:12px; color:#4ade80; }
+  .hashbox { font-family:monospace; font-size:11px; word-break:break-all; background:#08130a; border:1px dashed #2f5d2f; padding:10px; border-radius:8px; color:#7ddf9a; margin:8px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td { padding:6px 4px; border-bottom:1px solid #1a2e1a; } td:first-child { color:#6b8f6b; }
+  .qr { background:#fff; padding:10px; border-radius:10px; display:inline-block; }
+  .badge { display:inline-block; font-size:11px; padding:3px 10px; border-radius:999px; background:#14532d; color:#86efac; margin-right:6px; }
+  .badge.warn { background:#451a03; color:#fbbf24; }
+  .badge.ok { background:#052e16; color:#4ade80; border:1px solid var(--green); }
+  .hazard-banner { background:linear-gradient(90deg,#450a0a,#7f1d1d); border:2px solid var(--red); border-radius:12px; padding:16px; margin:12px 0; animation:pulse 1s infinite; }
+  .hidden { display:none; }
+  .row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+  .col { flex:1; min-width:260px; }
+  .stat { text-align:center; background:#122412; border-radius:12px; padding:16px 8px; }
+  .stat .v { font-size:26px; font-weight:800; color:#4ade80; } .stat .k { font-size:11px; color:#8fbf8f; }
+  footer { text-align:center; padding:18px; font-size:11px; color:#3f6b3f; }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">♻️</span>
+  <div><h1>ScrapChain AI</h1><p>Kabadiwala Connect · SIH26229 · Live prototype demo</p></div>
+  <div class="timer" id="timer">⏱ 0:00</div>
+</header>
+<main>
+  <div class="steps" id="steps">
+    <div class="step active" data-s="1">1 · AI Scan</div>
+    <div class="step" data-s="2">2 · Price + Voice</div>
+    <div class="step" data-s="3">3 · Recycler Match</div>
+    <div class="step" data-s="4">4 · Blockchain Receipt</div>
+    <div class="step" data-s="5">5 · AR Safety</div>
+    <div class="step" data-s="6">6 · Green Ledger</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="card" id="s1">
+    <h2>📷 Step 1 — Point camera at e-waste (on-device YOLOv8n, TFLite)</h2>
+    <p style="font-size:13px;color:#8fbf8f;margin-bottom:12px">In the Flutter app this is a live camera feed. Tap an item to simulate a scan:</p>
+    <div class="grid" id="itemGrid"></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card hidden" id="s2">
+    <h2>🔊 Step 2 — Detection + real-time price (median of 5 sources)</h2>
+    <div class="camera"><div class="bbox" id="bbox"><div class="bbox-label" id="bboxLabel"></div></div><span class="big-emoji" id="detEmoji"></span></div>
+    <div class="row">
+      <div class="col">
+        <div id="detName" style="font-size:22px;font-weight:700"></div>
+        <div id="detMat" style="font-size:13px;color:#8fbf8f;margin-bottom:8px"></div>
+        <div class="price-tag" id="detPrice"></div>
+        <div style="font-size:12px;color:#6b8f6b">per kg · INR · updated <span id="detTime"></span></div>
+        <div class="voice-line" id="voiceLine"></div>
+        <button class="btn secondary" onclick="speakAgain()">🔊 Replay voice (हिन्दी)</button>
+      </div>
+      <div class="col">
+        <h2 style="font-size:14px">Source quotes</h2>
+        <table id="srcTable"></table>
+        <div style="margin-top:14px">
+          <label style="font-size:13px;color:#8fbf8f">Weight (kg): <input id="weight" type="number" value="2.5" min="0.1" step="0.1" style="width:70px;background:#122412;color:#fff;border:1px solid #234a23;border-radius:6px;padding:6px"></label>
+          <button class="btn" style="margin-left:10px" onclick="findRecyclers()">Find recyclers →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="card hidden" id="s3">
+    <h2>📍 Step 3 — Top recycler matches near MG Road, Bengaluru</h2>
+    <p style="font-size:12px;color:#8fbf8f;margin-bottom:10px">Ranked by distance · rating · payment speed · CPCB authorization. Tap one to sell:</p>
+    <div id="recList"></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="card hidden" id="s4">
+    <h2>⛓️ Step 4 — Blockchain-anchored digital receipt</h2>
+    <div class="row">
+      <div class="col">
+        <table id="rcptTable"></table>
+        <div style="margin-top:8px"><span class="badge ok" id="chainBadge">⛓ verifying…</span></div>
+        <div style="font-size:11px;color:#6b8f6b;margin-top:4px">Receipt ID (SHA-256, anchored to hash-chained ledger block):</div>
+        <div class="hashbox" id="rcptHash"></div>
+        <button class="btn secondary" onclick="verifyReceipt()">🔍 Re-verify on ledger</button>
+        <button class="btn secondary" onclick="showStep(5)">Next: AR Safety →</button>
+      </div>
+      <div class="col" style="text-align:center">
+        <div class="qr"><img id="qrImg" width="180" height="180" alt="QR"></div>
+        <div style="font-size:11px;color:#6b8f6b;margin-top:6px">Scan to verify · shareable via WhatsApp / SMS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="card hidden" id="s5">
+    <h2>🦺 Step 5 — AR hazard detection (ARCore + YOLOv8 hazard classes)</h2>
+    <div class="camera"><div class="bbox hazard"><div class="bbox-label">Acid-Container · 0.94</div></div><span class="big-emoji">🧪</span></div>
+    <div class="hazard-banner">⚠️ <b>सावधान! एसिड कंटेनर।</b> दस्ताने पहनें। खुले में न जलाएँ। <span style="font-size:12px">(Warning! Acid container. Wear gloves. Do not open-burn.)</span></div>
+    <button class="btn danger" onclick="speak('सावधान! एसिड कंटेनर। दस्ताने पहनें।')">🔊 Play audio alert</button>
+    <button class="btn secondary" onclick="loadLedger()">Next: Green Ledger →</button>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="card hidden" id="s6">
+    <h2>🌱 Step 6 — Green Ledger · Collector KBD-BLR-0042 (Ravi Kumar)</h2>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));margin-bottom:14px" id="ledgerStats"></div>
+    <div id="loanBadge"></div>
+    <h2 style="font-size:14px;margin-top:12px">Receipt history (on-chain)</h2>
+    <div id="ledgerRows" style="font-size:12px"></div>
+    <div style="margin-top:16px;padding:14px;background:#122412;border-radius:10px;font-size:13px">
+      🇮🇳 <b>Impact at scale:</b> 2,00,000 collectors empowered · income ₹12k → ₹25k/month · 60% less acid-leaching &amp; open burning · 70–80% EPR traceability · 5,00,000+ tons/yr diverted from landfills.
+    </div>
+    <button class="btn" style="margin-top:12px" onclick="location.reload()">↻ Restart demo</button>
+  </section>
+</main>
+<footer>ScrapChain AI · FastAPI backend live at <code>/docs</code> · Fabric mode: simulated hash-chain ledger · Flutter app in <code>mobile/</code></footer>
+
+<script>
+const ITEMS = [
+  ["PCB","🟩","Gold-plated board"],["Battery","🔋","Li-ion cell"],["RAM","💾","Memory stick"],
+  ["Cable","🔌","Copper wire"],["HDD","💿","Hard disk"],["Charger","⚡","Adapter"],
+  ["Motor","⚙️","Copper motor"],["CRT","📺","Old monitor"],["SSD","🖴","Solid state"],
+  ["Keyboard","⌨️","ABS plastic"],["Transformer","🧲","Cu winding"],["Heat-Sink","🌡️","Aluminium"],
+];
+const EMOJI = Object.fromEntries(ITEMS.map(i=>[i[0],i[1]]));
+let state = { item:null, price:null, recycler:null, receipt:null, t0:Date.now() };
+
+setInterval(()=>{ const s=Math.floor((Date.now()-state.t0)/1000);
+  document.getElementById("timer").textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;},500);
+
+const grid=document.getElementById("itemGrid");
+ITEMS.forEach(([n,e,sub])=>{ const b=document.createElement("button"); b.className="item-btn";
+  b.innerHTML=`<span class="emoji">${e}</span><b>${n}</b><div class="sub">${sub}</div>`;
+  b.onclick=()=>scan(n); grid.appendChild(b); });
+
+function showStep(n){ for(let i=1;i<=6;i++){ document.getElementById("s"+i).classList.toggle("hidden",i!==n);
+  const st=document.querySelector(`.step[data-s="${i}"]`); st.classList.toggle("active",i===n); st.classList.toggle("done",i<n); }
+  window.scrollTo({top:0,behavior:"smooth"}); }
+
+function speak(text){ try{ const u=new SpeechSynthesisUtterance(text); u.lang="hi-IN"; u.rate=0.95;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+function speakAgain(){ if(state.price) speak(state.price.voice_hi); }
+
+async function scan(item){
+  state.item=item;
+  const r=await fetch(`/api/v1/pricing/${item}`); state.price=await r.json();
+  const p=state.price;
+  document.getElementById("detEmoji").textContent=EMOJI[item]||"♻️";
+  document.getElementById("bboxLabel").textContent=`${item} · ${(0.87+Math.random()*0.1).toFixed(2)}`;
+  document.getElementById("detName").textContent=item;
+  document.getElementById("detMat").textContent=`Material: ${p.material} · EfficientNet-B0 classification`;
+  document.getElementById("detPrice").textContent=`₹${p.price_per_kg}`;
+  document.getElementById("detTime").textContent=new Date(p.updated_at).toLocaleTimeString();
+  document.getElementById("voiceLine").textContent="🗣️ "+p.voice_hi;
+  document.getElementById("srcTable").innerHTML=p.sources.map(s=>`<tr><td>${s.source}</td><td style="text-align:right">₹${s.price_per_kg}</td></tr>`).join("")
+    +`<tr><td><b>Median (used)</b></td><td style="text-align:right"><b>₹${p.price_per_kg}</b></td></tr>`;
+  showStep(2); speak(p.voice_hi);
+}
+
+async function findRecyclers(){
+  const r=await fetch(`/api/v1/recyclers/nearby?lat=12.9752&lng=77.6057&limit=3&item_type=${state.item}`);
+  const recs=await r.json(); const medals=["🥇","🥈","🥉"];
+  document.getElementById("recList").innerHTML=recs.map((m,i)=>`
+    <div class="rec" onclick='sellTo(${JSON.stringify(m).replace(/'/g,"&#39;")})'>
+      <span class="rank">${medals[i]||"•"}</span>
+      <div><b>${m.name}</b><div class="meta">${m.distance_km} km · ⭐ ${m.rating} · pays in ${m.payment_speed_hours}h
+      ${m.cpcb_authorized?'<span class="badge ok">CPCB ✓</span>':'<span class="badge warn">unverified</span>'}</div></div>
+      <div class="score">match<br><b>${(m.match_score*100).toFixed(0)}%</b></div>
+    </div>`).join("");
+  showStep(3);
+  speak(`नज़दीकी रीसायकलर ${recs[0]?.name?.split("(")[0]||""}, ${recs[0]?.distance_km} किलोमीटर दूर।`);
+}
+
+async function sellTo(rec){
+  state.recycler=rec;
+  const weight=parseFloat(document.getElementById("weight").value)||1;
+  const body={ item_type:state.item, material:state.price.material, weight_kg:weight,
+    price_per_kg:state.price.price_per_kg, collector_id:"KBD-BLR-0042", recycler_id:rec.id };
+  const r=await fetch("/api/v1/receipts/mint",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  state.receipt=await r.json(); renderReceipt(); showStep(4);
+  speak(`रसीद बन गई। कुल राशि ${Math.round(state.receipt.total_amount)} रुपये।`);
+}
+
+function renderReceipt(){
+  const rc=state.receipt;
+  document.getElementById("rcptTable").innerHTML=`
+    <tr><td>Item</td><td>${rc.item_type} (${rc.material})</td></tr>
+    <tr><td>Weight</td><td>${rc.weight_kg} kg</td></tr>
+    <tr><td>Rate</td><td>₹${rc.price_per_kg}/kg</td></tr>
+    <tr><td>Total</td><td><b style="color:#4ade80;font-size:17px">₹${rc.total_amount}</b></td></tr>
+    <tr><td>Collector</td><td>${rc.collector_id}</td></tr>
+    <tr><td>Recycler</td><td>${state.recycler.name}</td></tr>
+    <tr><td>Block #</td><td>${rc.proof.block_index}</td></tr>
+    <tr><td>Time</td><td>${new Date(rc.timestamp).toLocaleString()}</td></tr>`;
+  document.getElementById("rcptHash").textContent=rc.receipt_id;
+  document.getElementById("qrImg").src=`/api/v1/receipts/${rc.receipt_id}/qr`;
+  document.getElementById("chainBadge").textContent="⛓ chain valid ✓ (block "+rc.proof.block_index+")";
+}
+
+async function verifyReceipt(){
+  const r=await fetch(`/api/v1/receipts/${state.receipt.receipt_id}`); const v=await r.json();
+  const ok=v.proof.chain_valid;
+  const b=document.getElementById("chainBadge");
+  b.textContent=ok?"⛓ VERIFIED — hash chain intact ✓":"⚠ CHAIN BROKEN — tampering detected";
+  b.className="badge "+(ok?"ok":"warn");
+}
+
+async function loadLedger(){
+  const r=await fetch("/api/v1/users/KBD-BLR-0042/ledger"); const L=await r.json();
+  document.getElementById("ledgerStats").innerHTML=`
+    <div class="stat"><div class="v">${L.total_receipts}</div><div class="k">Receipts</div></div>
+    <div class="stat"><div class="v">₹${L.total_earnings.toLocaleString("en-IN")}</div><div class="k">Earnings</div></div>
+    <div class="stat"><div class="v">${L.total_weight_kg} kg</div><div class="k">E-waste diverted</div></div>
+    <div class="stat"><div class="v">${L.eco_points}</div><div class="k">EcoPoints 🌱</div></div>`;
+  document.getElementById("loanBadge").innerHTML=L.microloan_eligible
+    ? `<span class="badge ok">✅ Micro-loan eligible: up to ₹${Math.round(L.microloan_limit).toLocaleString("en-IN")}</span>`
+    : `<span class="badge warn">Micro-loan: ${5-L.total_receipts} more receipts to unlock ₹10,000</span>`;
+  document.getElementById("ledgerRows").innerHTML=L.receipts.map(x=>
+    `<div style="padding:8px;border-bottom:1px solid #1a2e1a">${EMOJI[x.item_type]||"♻️"} <b>${x.item_type}</b> · ${x.weight_kg} kg · ₹${x.total_amount}
+     <span style="color:#4a7a4a;font-family:monospace;font-size:10px"> ${x.receipt_id.slice(0,16)}… blk#${x.proof.block_index}</span></div>`).join("")
+     || '<div style="color:#6b8f6b">No receipts yet — scan an item first!</div>';
+  showStep(6);
+}
+</script>
+</body>
+</html>

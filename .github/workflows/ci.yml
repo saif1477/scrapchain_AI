@@ -1,0 +1,32 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r backend/requirements.txt
+      - name: Boot API + smoke test
+        run: |
+          cd backend && uvicorn main:app --port 8000 &
+          sleep 4
+          bash scripts/test_api.sh
+
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "3.24.x" }
+      - run: cd mobile && flutter pub get && flutter analyze --no-fatal-infos
+
+  chaincode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.22" }
+      - run: cd blockchain/chaincode && go mod init scrapchain/receipt 2>/dev/null; go mod tidy && go vet ./...

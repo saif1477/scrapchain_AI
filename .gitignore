@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Flutter / Dart
+mobile/build/
+mobile/.dart_tool/
+mobile/.packages
+mobile/.flutter-plugins*
+*.tflite
+
+# ML artifacts
+ai_models/runs/
+ai_models/weights/
+*.pt
+*.onnx
+
+# Blockchain
+blockchain/network/crypto-config/
+blockchain/network/*.block
+blockchain/network/*.tx
+
+# DB / misc
+*.db
+*.sqlite3
+.DS_Store
+node_modules/

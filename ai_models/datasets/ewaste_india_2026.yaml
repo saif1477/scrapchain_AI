@@ -1,0 +1,27 @@
+path: datasets/ewaste_india_2026
+train: images/train
+val: images/val
+test: images/test
+
+# 20 classes — informal-sector e-waste taxonomy (India)
+names:
+  0: PCB
+  1: Battery
+  2: CRT
+  3: Cable
+  4: Motor
+  5: Gold-Plated
+  6: Lithium
+  7: Acid-Container
+  8: Transformer
+  9: Heat-Sink
+  10: Fan
+  11: Speaker
+  12: Display
+  13: Keyboard
+  14: Mouse
+  15: Charger
+  16: USB-Cable
+  17: RAM
+  18: HDD
+  19: SSD
