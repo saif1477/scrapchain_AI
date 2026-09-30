@@ -71,5 +71,3 @@ flutter run --dart-define=API_BASE=http://10.0.2.2:8000   # Android emulator
 - **Environment:** 5,00,000+ tons/yr diverted from landfills at national scale
 - **Finance:** receipt history = credit rail → ₹10,000+ micro-loans (5+ verified receipts)
 
-## License
-MIT
