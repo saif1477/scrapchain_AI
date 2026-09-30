@@ -95,7 +95,7 @@ class _ArSafetyScreenState extends State<ArSafetyScreen> {
                     border: Border.all(color: c, width: 4),
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
-                      BoxShadow(color: c.withValues(alpha: .5), blurRadius: 18)
+                      BoxShadow(color: c.withOpacity(.5), blurRadius: 18)
                     ],
                   ),
                   child: Align(
@@ -121,7 +121,7 @@ class _ArSafetyScreenState extends State<ArSafetyScreen> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                  color: Colors.red.shade900.withValues(alpha: .92),
+                  color: Colors.red.shade900.withOpacity(.92),
                   borderRadius: BorderRadius.circular(12)),
               child: const Text(
                 'सावधान! खतरनाक सामग्री मिली।\nदस्ताने पहनें · खुले में न जलाएँ · तेज़ाब न निकालें',

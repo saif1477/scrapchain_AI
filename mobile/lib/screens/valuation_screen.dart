@@ -41,8 +41,7 @@ class _ValuationScreenState extends State<ValuationScreen> {
     double lat = 12.9752, lng = 77.6057; // fallback: MG Road, Bengaluru
     try {
       final pos = await Geolocator.getCurrentPosition(
-          locationSettings:
-              const LocationSettings(accuracy: LocationAccuracy.low));
+          desiredAccuracy: LocationAccuracy.low);
       lat = pos.latitude;
       lng = pos.longitude;
     } catch (_) {}
@@ -116,7 +115,7 @@ class _ValuationScreenState extends State<ValuationScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               ..._recyclers.map((r) => Card(
                     color: r == _selected
-                        ? Colors.green.withValues(alpha: .18)
+                        ? Colors.green.withOpacity(.18)
                         : null,
                     child: ListTile(
                       onTap: () => setState(() => _selected = r),

@@ -11,6 +11,7 @@ mobile/.dart_tool/
 mobile/.packages
 mobile/.flutter-plugins*
 *.tflite
+!mobile/assets/models/*.tflite
 
 # ML artifacts
 ai_models/runs/
